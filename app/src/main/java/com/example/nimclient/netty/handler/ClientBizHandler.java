@@ -57,10 +57,12 @@ public class ClientBizHandler extends ChannelInboundHandlerAdapter {
                 }
                 // 确认消息收到
                 Map<String, String> param = new HashMap<>(4);
-                param.put("UID", Constants.UID);
-                param.put("msgId", String.valueOf(message.getHead().getMsgId()));
+                param.put("uid", Constants.UID);
+                param.put("guid", String.valueOf(message.getHead().getMsgId()));
                 String reqPath = Constants.buildReqPath(Constants.MSG_ACK, param);
+                Log.i(tag, "====>" + reqPath);
                 OkHttpUtil.getInstance().getDataAsyn(reqPath, OkHttpUtil.DEFAULT_NET_CALL);
+                Log.i(tag, "====>send ack...");
                 break;
             case KICK:
                 Log.i(tag, "====>Be kicked by server: " + message);

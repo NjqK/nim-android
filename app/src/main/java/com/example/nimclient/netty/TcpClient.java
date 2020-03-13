@@ -104,8 +104,8 @@ public class TcpClient {
                 pipeline.addLast(new ProtobufVarint32LengthFieldPrepender());
                 pipeline.addLast(new ProtobufEncoder());
                 pipeline.addLast(new ReconnectHandler(client));
-                //pipeline.addLast(new PingerHandler());
-                //pipeline.addLast(new ClientBizHandler());
+                pipeline.addLast(new PingerHandler());
+                pipeline.addLast(new ClientBizHandler());
             }
         };
     }
@@ -113,6 +113,7 @@ public class TcpClient {
     private ChannelFutureListener getConnectionListener() {
         return future -> {
             if (!future.isSuccess()) {
+                Log.i(tag, "====>connecting is failed");
                 future.channel().pipeline().fireChannelInactive();
             }
         };

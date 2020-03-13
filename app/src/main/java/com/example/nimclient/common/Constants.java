@@ -31,7 +31,7 @@ public class Constants {
     public static final Common.Msg HAND_SHAKE = Common.Msg.newBuilder()
             .setHead(Common.Head.newBuilder()
                     .setMsgType(Common.MsgType.HAND_SHAKE)
-                    .addExtends(Common.ExtraHeader.newBuilder().setKey("UID").setValue(UID).build())
+                    .addExtends(Common.ExtraHeader.newBuilder().setKey("uid").setValue(UID).build())
                     .build())
             .build();
     /**
@@ -55,8 +55,7 @@ public class Constants {
         for (String key : params.keySet()) {
             stringBuilder.append(key).append("=").append(params.get(key)).append("&");
         }
-        int lastSym = stringBuilder.lastIndexOf("&");
-        stringBuilder.replace(lastSym, lastSym, "");
-        return stringBuilder.toString();
+        String s = stringBuilder.toString();
+        return s.substring(0, s.length() - 1);
     }
 }
