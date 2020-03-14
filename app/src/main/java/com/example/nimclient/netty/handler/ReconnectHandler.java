@@ -40,10 +40,10 @@ public class ReconnectHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-//        if (retries == 0) {
-//            Log.e(tag, "====>Lost the TCP connection with the server.");
-//            ctx.close();
-//        }
+        if (retries == 0) {
+            Log.e(tag, "====>Lost the TCP connection with the server.");
+            ctx.close();
+        }
         boolean allowRetry = getRetryPolicy().allowRetry(retries);
         if (allowRetry) {
             ++retries;

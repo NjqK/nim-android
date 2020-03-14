@@ -49,7 +49,12 @@ public class Constants {
      */
     public static final String MSG_ACK = CHAT_SERVICE + "/ackMsg";
 
-    public static String buildReqPath(String basePath, Map<String, String> params) {
+    /**
+     * 获取可用的netty地址
+     */
+    public static final String UNREAD_MSG = CHAT_SERVICE + "/getMsg";
+
+    public static String buildGetReq(String basePath, Map<String, String> params) {
         StringBuilder stringBuilder = new StringBuilder(basePath);
         stringBuilder.append("?");
         for (String key : params.keySet()) {
