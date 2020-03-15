@@ -1,5 +1,6 @@
 package com.example.nimclient.netty;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.example.nimclient.netty.handler.ClientBizHandler;
@@ -7,7 +8,11 @@ import com.example.nimclient.netty.handler.PingerHandler;
 import com.example.nimclient.netty.handler.ReconnectHandler;
 import com.example.nimclient.netty.policy.DefaultRetryPolicy;
 import com.example.nimclient.netty.policy.RetryPolicy;
+import com.example.nimclient.netty.ssl.SSLContextFactory;
 import com.example.proto.common.common.Common;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -23,6 +28,7 @@ import io.netty.handler.codec.protobuf.ProtobufDecoder;
 import io.netty.handler.codec.protobuf.ProtobufEncoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
+import io.netty.handler.ssl.SslHandler;
 
 /**
  * @author kuro
@@ -46,9 +52,11 @@ public class TcpClient {
      */
     private Channel channel;
     private TcpClient client;
+    private Context context;
 
-    public TcpClient(String host, int port) {
+    public TcpClient(String host, int port, Context context) {
         this(host, port, DefaultRetryPolicy.DEFAULT);
+        this.context = context;
     }
 
     public TcpClient(String host, int port, RetryPolicy retryPolicy) {
@@ -96,7 +104,11 @@ public class TcpClient {
             @Override
             protected void initChannel(Channel ch) throws Exception {
                 ChannelPipeline pipeline = ch.pipeline();
-                // TODO add ssl
+                // ssl
+                SSLContext sslContext = SSLContextFactory.getClientContext(context);
+                SSLEngine sslEngine = sslContext.createSSLEngine();
+                sslEngine.setUseClientMode(true);
+                ch.pipeline().addLast("ssl", new SslHandler(sslEngine));
                 // 半包处理
                 pipeline.addLast(new ProtobufVarint32FrameDecoder());
                 // 解码的目标类

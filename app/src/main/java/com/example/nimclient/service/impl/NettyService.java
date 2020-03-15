@@ -98,7 +98,7 @@ public class NettyService extends Service implements OkHttpUtil.NetCall, MsgSend
             String json = JsonFormat.printer().print(resp);
             Log.i(tag, "====>data: " + json);
             // launch netty client
-            tcpClient = new TcpClient(resp.getHost(), Integer.parseInt(resp.getPort()));
+            tcpClient = new TcpClient(resp.getHost(), Integer.parseInt(resp.getPort()), getApplication());
             tcpClient.connect();
         } else {
             Log.e(tag, "====>chat service is unavailable.");
