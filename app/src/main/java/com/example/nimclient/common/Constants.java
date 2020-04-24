@@ -37,7 +37,7 @@ public class Constants {
     /**
      * chat服务的地址
      */
-    public static final String CHAT_SERVICE = "http://192.168.129.128:8082";
+    public static final String CHAT_SERVICE = "http://192.168.0.108:8082";
 
     /**
      * 获取可用的netty地址

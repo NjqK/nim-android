@@ -57,6 +57,7 @@ public class ReconnectHandler extends ChannelInboundHandlerAdapter {
             Log.e(tag,"====>over retry times ...");
             ctx.close();
             tcpClient.close();
+
         }
         ctx.fireChannelInactive();
     }
