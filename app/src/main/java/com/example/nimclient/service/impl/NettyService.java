@@ -107,6 +107,7 @@ public class NettyService extends Service implements OkHttpUtil.NetCall, MsgSend
 
     @Override
     public void searchNewAvailableNodeAndConnect() {
+        tcpClient = null;
         OkHttpUtil instance = OkHttpUtil.getInstance();
         instance.getDataAsyn(Constants.GET_AVAILABLE_NETTY_ADDRESS, this);
     }
