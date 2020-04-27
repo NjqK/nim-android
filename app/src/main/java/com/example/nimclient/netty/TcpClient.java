@@ -9,7 +9,7 @@ import com.example.nimclient.netty.handler.ReconnectHandler;
 import com.example.nimclient.netty.policy.DefaultRetryPolicy;
 import com.example.nimclient.netty.policy.RetryPolicy;
 import com.example.nimclient.netty.ssl.SSLContextFactory;
-import com.example.nimclient.service.FailedReconnect;
+import com.example.nimclient.service.SpecialReconnect;
 import com.example.proto.common.common.Common;
 
 import javax.net.ssl.SSLContext;
@@ -54,11 +54,11 @@ public class TcpClient {
     private Channel channel;
     private TcpClient client;
     private Context context;
-    private FailedReconnect failedReconnect;
+    private SpecialReconnect specialReconnect;
 
-    public TcpClient(String host, int port, Context context, FailedReconnect failedReconnect) {
+    public TcpClient(String host, int port, Context context, SpecialReconnect specialReconnect) {
         this(host, port, DefaultRetryPolicy.DEFAULT);
-        this.failedReconnect = failedReconnect;
+        this.specialReconnect = specialReconnect;
         this.context = context;
     }
 
@@ -88,7 +88,27 @@ public class TcpClient {
             channel.closeFuture().syncUninterruptibly();
         }
         group.shutdownGracefully();
-        failedReconnect.searchNewAvailableNodeAndConnect();
+    }
+
+    /**
+     * 重新连接一个新的
+     */
+    public void connectNewOne() {
+        close();
+        specialReconnect.searchNewAvailableNodeAndConnect();
+    }
+
+    /**
+     * 连接特定的一个服务器
+     */
+    public void connectSpecialOne(String newServerInfo) {
+        if (newServerInfo != null && newServerInfo.trim().length() > 0) {
+            close();
+            String[] server = newServerInfo.split("_");
+            String host = server[1];
+            String port = server[2];
+            specialReconnect.connectSpecialServer(host, port);
+        }
     }
 
     public RetryPolicy getRetryPolicy() {
@@ -121,7 +141,7 @@ public class TcpClient {
                 pipeline.addLast(new ProtobufEncoder());
                 pipeline.addLast(new ReconnectHandler(client));
                 pipeline.addLast(new PingerHandler());
-                pipeline.addLast(new ClientBizHandler());
+                pipeline.addLast(new ClientBizHandler(client));
             }
         };
     }

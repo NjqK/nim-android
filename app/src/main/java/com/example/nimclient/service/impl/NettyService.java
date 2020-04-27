@@ -12,7 +12,7 @@ import com.example.nimclient.common.Constants;
 import com.example.nimclient.common.MsgSenderMap;
 import com.example.nimclient.common.OkHttpUtil;
 import com.example.nimclient.netty.TcpClient;
-import com.example.nimclient.service.FailedReconnect;
+import com.example.nimclient.service.SpecialReconnect;
 import com.example.nimclient.service.MsgSender;
 import com.example.proto.common.common.Common;
 import com.example.proto.outer.outer.Outer;
@@ -23,7 +23,7 @@ import java.io.IOException;
 import okhttp3.Call;
 import okhttp3.Response;
 
-public class NettyService extends Service implements OkHttpUtil.NetCall, MsgSender, FailedReconnect {
+public class NettyService extends Service implements OkHttpUtil.NetCall, MsgSender, SpecialReconnect {
 
     /**
      * log tag
@@ -66,7 +66,7 @@ public class NettyService extends Service implements OkHttpUtil.NetCall, MsgSend
         if (tcpClient != null) {
             tcpClient.close();
         }
-        MsgSenderMap.remove(tag);
+        MsgSenderMap.remove(this.getClass().getName());
         super.onDestroy();
     }
 
@@ -110,5 +110,12 @@ public class NettyService extends Service implements OkHttpUtil.NetCall, MsgSend
         tcpClient = null;
         OkHttpUtil instance = OkHttpUtil.getInstance();
         instance.getDataAsyn(Constants.GET_AVAILABLE_NETTY_ADDRESS, this);
+    }
+
+    @Override
+    public void connectSpecialServer(String host, String port) {
+        tcpClient = new TcpClient(host, Integer.parseInt(port),
+                getApplication(), this);
+        tcpClient.connect();
     }
 }

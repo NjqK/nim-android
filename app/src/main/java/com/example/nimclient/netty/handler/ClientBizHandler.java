@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.example.nimclient.common.Constants;
 import com.example.nimclient.common.MsgSenderMap;
 import com.example.nimclient.common.OkHttpUtil;
+import com.example.nimclient.netty.TcpClient;
 import com.example.nimclient.service.MsgSender;
 import com.example.nimclient.service.impl.NettyService;
 import com.example.proto.common.common.Common;
@@ -31,26 +32,13 @@ import okhttp3.Response;
  **/
 public class ClientBizHandler extends ChannelInboundHandlerAdapter {
 
-//    @Override
-//    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-//        ctx.writeAndFlush(defaultMsg());
-//    }
-//
-//    private Common.Msg defaultMsg() {
-//        Common.Msg.Builder builder = Common.Msg.newBuilder();
-//        Common.Head header = Common.Head.newBuilder()
-//                .setMsgType(Common.MsgType.SINGLE_CHAT)
-//                .setMsgContentType(Common.MsgContentType.TEXT)
-//                .build();
-//        Common.Body body = Common.Body.newBuilder()
-//                .setContent("msgBody received")
-//                .build();
-//        builder.setHead(header);
-//        builder.setBody(body);
-//        return builder.build();
-//    }
-
     private final String tag = this.getClass().getName();
+
+    private TcpClient tcpClient;
+
+    public ClientBizHandler(TcpClient tcpClient) {
+        this.tcpClient = tcpClient;
+    }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -78,6 +66,10 @@ public class ClientBizHandler extends ChannelInboundHandlerAdapter {
                 break;
             case BYE:
                 Log.i(tag, "====>Server down: " + message);
+                break;
+            case CHANGE_SERVER:
+                Log.i(tag, "====>Manually Change Server: " + message);
+                tcpClient.connectSpecialOne(message.getBody().getContent());
                 break;
             default:
                 break;
