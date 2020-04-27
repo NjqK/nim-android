@@ -9,6 +9,7 @@ import com.example.nimclient.netty.handler.ReconnectHandler;
 import com.example.nimclient.netty.policy.DefaultRetryPolicy;
 import com.example.nimclient.netty.policy.RetryPolicy;
 import com.example.nimclient.netty.ssl.SSLContextFactory;
+import com.example.nimclient.service.FailedReconnect;
 import com.example.proto.common.common.Common;
 
 import javax.net.ssl.SSLContext;
@@ -53,9 +54,11 @@ public class TcpClient {
     private Channel channel;
     private TcpClient client;
     private Context context;
+    private FailedReconnect failedReconnect;
 
-    public TcpClient(String host, int port, Context context) {
+    public TcpClient(String host, int port, Context context, FailedReconnect failedReconnect) {
         this(host, port, DefaultRetryPolicy.DEFAULT);
+        this.failedReconnect = failedReconnect;
         this.context = context;
     }
 
@@ -85,6 +88,7 @@ public class TcpClient {
             channel.closeFuture().syncUninterruptibly();
         }
         group.shutdownGracefully();
+        failedReconnect.searchNewAvailableNodeAndConnect();
     }
 
     public RetryPolicy getRetryPolicy() {

@@ -13,7 +13,7 @@ public class DefaultRetryPolicy implements RetryPolicy {
      * 默认策略
      */
     public static final DefaultRetryPolicy DEFAULT =
-            new DefaultRetryPolicy(500, 15, 2000);
+            new DefaultRetryPolicy(500, 5, 2000);
 
     private static final int MAX_RETRIES_LIMIT = 29;
 

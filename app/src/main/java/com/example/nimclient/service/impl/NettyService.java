@@ -12,6 +12,7 @@ import com.example.nimclient.common.Constants;
 import com.example.nimclient.common.MsgSenderMap;
 import com.example.nimclient.common.OkHttpUtil;
 import com.example.nimclient.netty.TcpClient;
+import com.example.nimclient.service.FailedReconnect;
 import com.example.nimclient.service.MsgSender;
 import com.example.proto.common.common.Common;
 import com.example.proto.outer.outer.Outer;
@@ -22,7 +23,7 @@ import java.io.IOException;
 import okhttp3.Call;
 import okhttp3.Response;
 
-public class NettyService extends Service implements OkHttpUtil.NetCall, MsgSender {
+public class NettyService extends Service implements OkHttpUtil.NetCall, MsgSender, FailedReconnect {
 
     /**
      * log tag
@@ -33,25 +34,6 @@ public class NettyService extends Service implements OkHttpUtil.NetCall, MsgSend
      * Netty client
      */
     private TcpClient tcpClient = null;
-
-    /**
-     * Broadcast
-     */
-//    private CommandReceiver cmdReceiver;
-
-//    private class CommandReceiver extends BroadcastReceiver {
-//        //继承自BroadcastReceiver的子类
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            //获取Extra信息
-//            int cmd = intent.getIntExtra("cmd", -1);
-//            //如果发来的消息是停止服务
-//            if(cmd == Constants.CMD_STOP_SERVICE){
-//                //停止服务
-//                stopSelf();
-//            }
-//        }
-//    }
 
     @Nullable
     @Override
@@ -98,7 +80,9 @@ public class NettyService extends Service implements OkHttpUtil.NetCall, MsgSend
             String json = JsonFormat.printer().print(resp);
             Log.i(tag, "====>data: " + json);
             // launch netty client
-            tcpClient = new TcpClient(resp.getHost(), Integer.parseInt(resp.getPort()), getApplication());
+            tcpClient = new TcpClient(resp.getHost(),
+                    Integer.parseInt(resp.getPort()),
+                    getApplication(), this);
             tcpClient.connect();
         } else {
             Log.e(tag, "====>chat service is unavailable.");
@@ -119,5 +103,12 @@ public class NettyService extends Service implements OkHttpUtil.NetCall, MsgSend
         intent.setAction("MainActivity");
         intent.putExtra("data", msg);
         sendBroadcast(intent);
+    }
+
+    @Override
+    public void searchNewAvailableNodeAndConnect() {
+        tcpClient = null;
+        OkHttpUtil instance = OkHttpUtil.getInstance();
+        instance.getDataAsyn(Constants.GET_AVAILABLE_NETTY_ADDRESS, this);
     }
 }
