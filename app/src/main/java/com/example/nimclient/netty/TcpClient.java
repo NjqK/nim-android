@@ -75,19 +75,20 @@ public class TcpClient {
      */
     public void connect() {
         Log.i(tag, "====>connecting netty server.");
-        synchronized (bootstrap) {
-            ChannelFuture future = bootstrap.connect(host, port);
-            future.addListener(getConnectionListener());
-            this.channel = future.channel();
-        }
+        ChannelFuture future = bootstrap.connect(host, port);
+        future.addListener(getConnectionListener());
+        this.channel = future.channel();
     }
 
     public void close() {
         Log.i(tag, "====>closing netty server.");
-        synchronized (bootstrap) {
+        try {
             channel.closeFuture().syncUninterruptibly();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            group.shutdownGracefully();
         }
-        group.shutdownGracefully();
     }
 
     /**

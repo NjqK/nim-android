@@ -69,6 +69,7 @@ public class ClientBizHandler extends ChannelInboundHandlerAdapter {
                 break;
             case CHANGE_SERVER:
                 Log.i(tag, "====>Manually Change Server: " + message);
+                ctx.close();
                 tcpClient.connectSpecialOne(message.getBody().getContent());
                 break;
             default:

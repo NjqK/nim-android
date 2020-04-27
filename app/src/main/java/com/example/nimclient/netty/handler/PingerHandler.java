@@ -48,7 +48,7 @@ public class PingerHandler extends ChannelInboundHandlerAdapter {
      * TODO 封装Ping间隔
      */
     private int getPingInterval() {
-        return Math.max(1, random.nextInt(baseRandom));
+        return Math.max(5, random.nextInt(baseRandom));
     }
 
     /**
