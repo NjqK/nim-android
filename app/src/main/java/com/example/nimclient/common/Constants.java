@@ -3,6 +3,7 @@ package com.example.nimclient.common;
 import com.example.proto.common.common.Common;
 
 import java.util.Map;
+import java.util.Random;
 
 /**
  * @author kuro

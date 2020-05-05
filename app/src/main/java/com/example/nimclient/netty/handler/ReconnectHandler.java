@@ -2,9 +2,14 @@ package com.example.nimclient.netty.handler;
 
 import android.util.Log;
 
+import com.example.common.secure.aes.AESUtil;
+import com.example.common.secure.rsa.RSAUtils;
 import com.example.nimclient.common.Constants;
+import com.example.nimclient.common.KeyManager;
 import com.example.nimclient.netty.TcpClient;
 import com.example.nimclient.netty.policy.RetryPolicy;
+import com.example.proto.common.common.Common;
+
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -34,7 +39,24 @@ public class ReconnectHandler extends ChannelInboundHandlerAdapter {
         Log.i(tag, "====>netty active");
         retries = 0;
         // 发送确认连接的消息，携带用户id
-        ctx.writeAndFlush(Constants.HAND_SHAKE);
+        String keys = KeyManager.CLIENT_AES_KEY;
+        // 读服务器公钥
+        String encodedData = RSAUtils.publicEncrypt(keys, RSAUtils.getPublicKey(KeyManager.SERVER_RSA_PUBLIC_KEY));
+        Common.ExtraHeader clientAesKey = Common.ExtraHeader.newBuilder()
+                .setKey("clientAESKey")
+                .setValue(encodedData)
+                .build();
+        Common.ExtraHeader uid = Common.ExtraHeader.newBuilder()
+                .setKey("uid")
+                .setValue(Constants.UID)
+                .build();
+        Common.Msg handShake = Common.Msg.newBuilder().setHead(Common.Head.newBuilder()
+                .setMsgType(Common.MsgType.HAND_SHAKE)
+                .addExtends(clientAesKey)
+                .addExtends(uid)
+                .build())
+                .build();
+        ctx.writeAndFlush(handShake);
         ctx.fireChannelActive();
     }
 
@@ -48,13 +70,13 @@ public class ReconnectHandler extends ChannelInboundHandlerAdapter {
         if (allowRetry) {
             ++retries;
             long sleepTimeMs = getRetryPolicy().getSleepIntervalMs(retries);
-            Log.i(tag,"====>Try to reconnect to the server after " + sleepTimeMs + "ms. Retry count: " + retries);
+            Log.i(tag, "====>Try to reconnect to the server after " + sleepTimeMs + "ms. Retry count: " + retries);
             ctx.channel().eventLoop().schedule(() -> {
-                Log.i(tag,"====>Reconnecting ...");
+                Log.i(tag, "====>Reconnecting ...");
                 tcpClient.connect();
             }, sleepTimeMs, TimeUnit.MILLISECONDS);
         } else {
-            Log.e(tag,"====>over retry times ...");
+            Log.e(tag, "====>over retry times ...");
             ctx.close();
             tcpClient.connectNewOne();
         }

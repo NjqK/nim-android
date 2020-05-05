@@ -12,7 +12,7 @@ import com.example.nimclient.common.Constants;
 import com.example.nimclient.common.MsgSenderMap;
 import com.example.nimclient.common.OkHttpUtil;
 import com.example.nimclient.netty.TcpClient;
-import com.example.nimclient.service.SpecialReconnect;
+import com.example.nimclient.service.SpecialReaction;
 import com.example.nimclient.service.MsgSender;
 import com.example.proto.common.common.Common;
 import com.example.proto.outer.outer.Outer;
@@ -23,7 +23,7 @@ import java.io.IOException;
 import okhttp3.Call;
 import okhttp3.Response;
 
-public class NettyService extends Service implements OkHttpUtil.NetCall, MsgSender, SpecialReconnect {
+public class NettyService extends Service implements OkHttpUtil.NetCall, MsgSender, SpecialReaction {
 
     /**
      * log tag
@@ -117,5 +117,11 @@ public class NettyService extends Service implements OkHttpUtil.NetCall, MsgSend
         tcpClient = new TcpClient(host, Integer.parseInt(port),
                 getApplication(), this);
         tcpClient.connect();
+    }
+
+    @Override
+    public void shutDownApp() {
+        tcpClient = null;
+        sendMsg("被踢了，关闭APP。");
     }
 }

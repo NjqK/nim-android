@@ -3,7 +3,9 @@ package com.example.nimclient.netty.handler;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
+import com.example.common.secure.aes.AESUtil;
 import com.example.nimclient.common.Constants;
+import com.example.nimclient.common.KeyManager;
 import com.example.nimclient.common.MsgSenderMap;
 import com.example.nimclient.common.OkHttpUtil;
 import com.example.nimclient.netty.TcpClient;
@@ -47,10 +49,13 @@ public class ClientBizHandler extends ChannelInboundHandlerAdapter {
         switch (msgType) {
             case SINGLE_CHAT:
             case MULTI_CHAT:
+                // TODO 目前支队这两个类型进行消息加解密
                 Log.i(tag, "====>Client received msg: " + message);
                 MsgSender sender = MsgSenderMap.getSender(NettyService.class.getName());
                 if (sender != null) {
-                    sender.sendMsg(message.getBody().getContent());
+                    String content = message.getBody().getContent();
+                    String afterDecrypt = AESUtil.aesDecrypt(content, KeyManager.CLIENT_AES_KEY);
+                    sender.sendMsg(afterDecrypt);
                 }
                 // 确认消息收到
                 Map<String, String> param = new HashMap<>(4);
@@ -63,6 +68,7 @@ public class ClientBizHandler extends ChannelInboundHandlerAdapter {
                 break;
             case KICK:
                 Log.i(tag, "====>Be kicked by server: " + message);
+                tcpClient.shutDown();
                 break;
             case BYE:
                 Log.i(tag, "====>Server down: " + message);

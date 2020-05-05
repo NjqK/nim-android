@@ -9,7 +9,7 @@ import com.example.nimclient.netty.handler.ReconnectHandler;
 import com.example.nimclient.netty.policy.DefaultRetryPolicy;
 import com.example.nimclient.netty.policy.RetryPolicy;
 import com.example.nimclient.netty.ssl.SSLContextFactory;
-import com.example.nimclient.service.SpecialReconnect;
+import com.example.nimclient.service.SpecialReaction;
 import com.example.proto.common.common.Common;
 
 import javax.net.ssl.SSLContext;
@@ -54,11 +54,11 @@ public class TcpClient {
     private Channel channel;
     private TcpClient client;
     private Context context;
-    private SpecialReconnect specialReconnect;
+    private SpecialReaction specialReaction;
 
-    public TcpClient(String host, int port, Context context, SpecialReconnect specialReconnect) {
+    public TcpClient(String host, int port, Context context, SpecialReaction specialReaction) {
         this(host, port, DefaultRetryPolicy.DEFAULT);
-        this.specialReconnect = specialReconnect;
+        this.specialReaction = specialReaction;
         this.context = context;
     }
 
@@ -91,12 +91,17 @@ public class TcpClient {
         }
     }
 
+    public void shutDown() {
+        close();
+        specialReaction.shutDownApp();
+    }
+
     /**
      * 重新连接一个新的
      */
     public void connectNewOne() {
         close();
-        specialReconnect.searchNewAvailableNodeAndConnect();
+        specialReaction.searchNewAvailableNodeAndConnect();
     }
 
     /**
@@ -108,7 +113,7 @@ public class TcpClient {
             String[] server = newServerInfo.split("_");
             String host = server[1];
             String port = server[2];
-            specialReconnect.connectSpecialServer(host, port);
+            specialReaction.connectSpecialServer(host, port);
         }
     }
 
@@ -130,10 +135,10 @@ public class TcpClient {
             protected void initChannel(Channel ch) throws Exception {
                 ChannelPipeline pipeline = ch.pipeline();
                 // ssl
-                SSLContext sslContext = SSLContextFactory.getClientContext(context);
-                SSLEngine sslEngine = sslContext.createSSLEngine();
-                sslEngine.setUseClientMode(true);
-                ch.pipeline().addLast("ssl", new SslHandler(sslEngine));
+                //SSLContext sslContext = SSLContextFactory.getClientContext(context);
+                //SSLEngine sslEngine = sslContext.createSSLEngine();
+                //sslEngine.setUseClientMode(true);
+                //ch.pipeline().addLast("ssl", new SslHandler(sslEngine));
                 // 半包处理
                 pipeline.addLast(new ProtobufVarint32FrameDecoder());
                 // 解码的目标类
