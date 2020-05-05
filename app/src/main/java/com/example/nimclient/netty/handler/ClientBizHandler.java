@@ -3,24 +3,22 @@ package com.example.nimclient.netty.handler;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
-import com.example.common.secure.aes.AESUtil;
 import com.example.nimclient.common.Constants;
 import com.example.nimclient.common.KeyManager;
 import com.example.nimclient.common.MsgSenderMap;
 import com.example.nimclient.common.OkHttpUtil;
 import com.example.nimclient.netty.TcpClient;
+import com.example.nimclient.netty.secure.aes.AESUtil;
 import com.example.nimclient.service.MsgSender;
 import com.example.nimclient.service.impl.NettyService;
 import com.example.proto.common.common.Common;
 import com.example.proto.outer.outer.Outer;
-import com.google.protobuf.util.JsonFormat;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;

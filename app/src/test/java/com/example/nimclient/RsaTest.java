@@ -1,8 +1,8 @@
 package com.example.nimclient;
 
-import com.example.common.secure.aes.AESUtil;
-import com.example.common.secure.rsa.RSAUtils;
 import com.example.nimclient.common.KeyManager;
+import com.example.nimclient.netty.secure.aes.AESUtil;
+import com.example.nimclient.netty.secure.rsa.RSAUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,13 +11,11 @@ import java.security.interfaces.RSAPublicKey;
 
 public class RsaTest {
     public static void main(String[] args) throws Exception {
-        System.out.println(KeyManager.CLIENT_AES_KEY);
-        System.out.println(KeyManager.SERVER_RSA_PUBLIC_KEY);
-        //liucheng();
+        liucheng();
     }
 
     private static void liucheng() throws Exception {
-        File file = new File("/home/kuro/project/nim-android/app/src/main/assets/key/rsa/public_key.txt");
+        File file = new File("app/src/main/assets/key/rsa/public_key.txt");
         FileReader reader = new FileReader(file);//定义一个fileReader对象，用来初始化BufferedReader
         BufferedReader bReader = new BufferedReader(reader);//new一个BufferedReader对象，将文件内容读取到缓存
         StringBuilder sb = new StringBuilder();//定义一个字符串缓存，将字符串存放缓存中

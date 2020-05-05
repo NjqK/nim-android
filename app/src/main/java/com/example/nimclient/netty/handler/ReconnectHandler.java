@@ -2,18 +2,17 @@ package com.example.nimclient.netty.handler;
 
 import android.util.Log;
 
-import com.example.common.secure.aes.AESUtil;
-import com.example.common.secure.rsa.RSAUtils;
 import com.example.nimclient.common.Constants;
 import com.example.nimclient.common.KeyManager;
 import com.example.nimclient.netty.TcpClient;
 import com.example.nimclient.netty.policy.RetryPolicy;
+import com.example.nimclient.netty.secure.rsa.RSAUtils;
 import com.example.proto.common.common.Common;
+import com.google.protobuf.util.JsonFormat;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.EventLoop;
 
 import java.util.concurrent.TimeUnit;
 
@@ -56,6 +55,8 @@ public class ReconnectHandler extends ChannelInboundHandlerAdapter {
                 .addExtends(uid)
                 .build())
                 .build();
+        String print = JsonFormat.printer().print(handShake);
+        Log.i(tag, "====>handshake:{}"+print);
         ctx.writeAndFlush(handShake);
         ctx.fireChannelActive();
     }
