@@ -75,6 +75,10 @@ public class NettyService extends Service implements OkHttpUtil.NetCall, MsgSend
         Log.e(tag, "====>invoke successfully.");
         byte[] bytes = response.body().bytes();
         Outer.GetAvailableNodeResp resp = Outer.GetAvailableNodeResp.parseFrom(bytes);
+        // TODO FIX IT
+        if (resp.getHost().equals("172.25.190.240")) {
+            resp = resp.toBuilder().setHost("47.98.169.156").build();
+        }
         if (resp.getRet().getErrorCode().equals(Common.ErrCode.SUCCESS)) {
             // 请求成功
             String json = JsonFormat.printer().print(resp);
