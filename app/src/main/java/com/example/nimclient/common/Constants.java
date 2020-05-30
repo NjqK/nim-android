@@ -37,9 +37,9 @@ public class Constants {
             .build();
     /**
      * chat服务的地址
-     * http://47.98.169.156:8082/client/getAvailableNode
+     * http://127.0.0.1:8082/client/getAvailableNode
      */
-    public static final String CHAT_SERVICE = "http://47.98.169.156:8082/client";
+    public static final String CHAT_SERVICE = "http://127.0.0.1:8082/client";
 
     /**
      * 获取可用的netty地址
